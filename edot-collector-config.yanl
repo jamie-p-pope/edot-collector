@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edot-collector
+  labels:
+    app: edot-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edot-collector
+  template:
+    metadata:
+      labels:
+        app: edot-collector
+    spec:
+      containers:
+      - name: edot-collector
+        image: ghcr.io/jamie-p-pope/edot-collector:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4317 # OTLP gRPC
+        - containerPort: 4318 # OTLP HTTP
+        env:
+        - name: ELASTIC_ENDPOINT
+          value: "https://b3fa85ebdcb844ebb2936849f1304ee8.us-east-1.aws.found.io:443"
+        - name: ELASTIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: elastic-api-key
+              key: api_key
+      restartPolicy: Always
