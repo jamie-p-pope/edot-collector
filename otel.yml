@@ -1,0 +1,36 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  elasticsearch:
+    endpoints: ["${ELASTIC_ENDPOINT}"]
+    api_key: "${ELASTIC_API_KEY}"
+    traces_index: ".ds-traces-apm-default"
+    metrics_index: ".ds-metrics-generic-default"
+    logs_index: ".ds-logs-generic-default"
+
+processors:
+  batch:
+  resource:
+    attributes:
+      - key: service.name
+        value: edot-collector
+        action: insert
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [elasticsearch]
+    metrics:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [elasticsearch]
+    logs:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [elasticsearch]
